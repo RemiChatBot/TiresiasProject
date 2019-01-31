@@ -21,6 +21,7 @@ stat=["","",""]
 statG=""
 statTime=["","",""]
 statGTime=""
+gameStop=0
 def saveGame():
 	global stat
 	global statG
@@ -54,17 +55,29 @@ def saveGame():
 
 	theFile=open(fileName,"w")
 	theFile.write('\n'.join(contenu))
+	stat=["","",""]
+        statG=""
+        statTime=["","",""]
+        statGTime=""
+        time.sleep(1)
 def stopGame():
-	os.system('clear')
-	print("Au revoir "+userName + " :)")
-	saveGame()
-	test1Scalable.destroy()
-	exit()
+        global gameStop
+        if gameStop==0:
+                gameStop=1
+                os.system('clear')
+                print("Au revoir "+userName + " :)")
+                saveGame()
+                time.sleep(3)
+                test1Scalable.destroy()
+                exit()
+        else:
+                print("Bug possible")
 def login():
 	print("Veuillez entrer la premiere lettre de votre prénom")
 	global userName
 	userName= key.queue.get() #raw_input("")#raw input ne fonctionne pas avec les threads
 	userName=userName.lower()
+	os.system('clear')
 	print("Merci "+userName)
 	firstMenu()
 def moreInformation():
@@ -134,7 +147,8 @@ def gameMenu():
 	print("1 pour guitar hero")
 	print("2 pour des chiffres et pas de lettre")
 	print("3 pour retourner au menu principal")
-	print("4 pour quitter")
+	print("4 pour enregistrer")
+	print("5 pour quitter")
 	choice=key.queue.get()
 	if(choice=='0'):
 		initGame(0)
@@ -144,15 +158,20 @@ def gameMenu():
 		initGame(2)
 	elif(choice=='3'):
 		firstMenu()
-	else :
+	elif(choice=='4') :
+                saveGame()
+                gameMenu()
+        else:
 		stopGame()
 def firstMenu():
+        os.system('clear')
 	print (userName.capitalize()+", bienvenue sur le menu principal")
 	print ("choisisez :")
 	print ("0 pour en savoir plus sur le but des jeux")
 	print ("1 pour jouer")
 	print ("2 pour le programme d'installation")
-	print ("3 pour quitter")
+	print ("3 pour sauvegarder")
+	print ("4 pour quitter")
 	choice = key.queue.get()
 	if(choice=='0'):
 		moreInformation()
@@ -160,6 +179,9 @@ def firstMenu():
 		gameMenu()
 	elif(choice=='2'):
 		installation()
+	elif(choice=='3') :
+                saveGame()
+                gameMenu()
 	else :
 		stopGame()
 
@@ -214,8 +236,8 @@ def displayNone():
 	motif=[[0 for i in range(x)] for j in range(y)]
 	sendDataToDisplay(motif,x,y,1)
 def mineDisplay(value):
-	x=3
-	y=3
+	x=4 #3
+	y=4 #3
 	motif=[[0 for i in range(x)] for j in range(y)]
 	value=value-1
 	val1=int((value-value%3)/3)
@@ -247,36 +269,36 @@ def guitarDisplay(value):
 		motifS[0]=[[0, 0, 0, 1], 
 		 [0, 0, 0, 1], 
 		 [0, 0, 0, 1], 
-		 [0, 0, 0, 1]]
+		 [0, 0, 0, 0]]
 		motifS[1]=[[0, 0, 1, 0], 
 		 [0, 0, 1, 0], 
 		 [0, 0, 1, 0], 
-		 [0, 0, 1, 0]]
+		 [0, 0, 0, 0]]
 		motifS[2]=[[0, 1, 0, 0], 
 		 [0, 1, 0, 0], 
 		 [0, 1, 0, 0], 
-		 [0, 1, 0, 0]]
+		 [0, 0, 0, 0]]
 		motifS[3]=[[1, 0, 0, 0], 
 		 [1, 0, 0, 0], 
 		 [1, 0, 0, 0], 
-		 [1, 0, 0, 0]]
+		 [0, 0, 0, 0]]
 	elif value==6:
 		motifS[0]=[[1, 0, 0, 0], 
 		 [1, 0, 0, 0], 
 		 [1, 0, 0, 0], 
-		 [1, 0, 0, 0]]
+		 [0, 0, 0, 0]]
 		motifS[1]=[[0, 1, 0, 0], 
 		 [0, 1, 0, 0], 
 		 [0, 1, 0, 0], 
-		 [0, 1, 0, 0]]
+		 [0, 0, 0, 0]]
 		motifS[2]=[[0, 0, 1, 0], 
 		 [0, 0, 1, 0], 
 		 [0, 0, 1, 0], 
-		 [0, 0, 1, 0]]
+		 [0, 0, 0, 0]]
 		motifS[3]=[[0, 0, 0, 1], 
 		 [0, 0, 0, 1], 
 		 [0, 0, 0, 1], 
-		 [0, 0, 0, 1]]
+		 [0, 0, 0, 0]]
 	else :
 		motifS[0]=[[0, 0, 0, 0], 
 		 [0, 0, 0, 0], 
@@ -341,8 +363,8 @@ def digitDisplay(value):
 		 [0, 0, 0, 1]]
 	elif value==8 :
 		motifS=[[1, 0, 0, 1], 
-		 [1, 1, 1, 1], 
-		 [1, 1, 1, 1], 
+		 [0, 1, 1, 0], 
+		 [0, 1, 1, 0], 
 		 [1, 0, 0, 1]]
 	else :
 		motifS=[[1, 0, 0, 1], 
@@ -358,18 +380,25 @@ def gameLaunch(game):
 	score=0
 	debut=time.time()
 	oldTime=time.time()
+        olddigit=-1
 	for i in range(0,10):
 		os.system('clear')
 		oldTime=time.time()
 		timeSpend=int(oldTime-debut)
-		print("Score = "+str(score)+"/10 Temps ecoulé : "+str(timeSpend))
+		print("Score = "+str(score)+"/"+str(i)+" Temps ecoulé : "+str(timeSpend))
 		if(game==0):
 			print("Où se trouve la bombe?")
 			digit=random.randint(1,9)
+			if digit==olddigit:
+                                digit=random.randint(1,9)
+                        olddigit=digit
 			mineDisplay(digit)
 		elif(game==1):
 			print("Que dit la partition?")
 			digit=random.randint(0,3)
+			if digit==olddigit:
+                                digit=random.randint(0,3)
+                        olddigit=digit
 			if(digit==0):
 				digit=2
 			elif(digit==1):
@@ -382,6 +411,9 @@ def gameLaunch(game):
 		elif(game==2):
 			print("Quel chiffre sens tu?")
 			digit=random.randint(0,9)
+			if digit==olddigit:
+                                digit=random.randint(0,9)
+                        olddigit=digit
 			digitDisplay(digit)
 		print(digit)
 		guess=key.queue.get()
